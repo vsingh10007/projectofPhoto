@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lens & Light — Photography</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #FAF9F6;
+      --off-white: #F7F4EF;
+      --gold: #e4aa35;
+      --gold-light: #E2C98A;
+      --grey: #423f3f;
+      --light-grey: #D4D0C8;
+      --card-bg: #fefefe;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--off-white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 4rem;
+      background: rgba(13,13,13,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(200,164,90,0.15);
+      transition: padding 0.3s;
+    }
+    nav.scrolled { padding: 0.8rem 4rem; }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--light-grey);
+      text-decoration: none;
+      font-size: 0.82rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.25s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 24px; height: 1.5px;
+      background: var(--off-white);
+      transition: all 0.3s;
+    }
+
+    /* ── HERO ── */
+    #hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      padding: 0 2rem;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 40%, rgba(200,164,90,0.07) 0%, transparent 70%),
+        linear-gradient(160deg, #0D0D0D 0%, #1a1410 50%, #0D0D0D 100%);
+    }
+
+    /* Animated film-grain overlay */
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 9vw, 7.5rem);
+      font-weight: 300;
+      line-height: 1.0;
+      letter-spacing: -0.01em;
+      color: var(--off-white);
+      opacity: 0;
+      animation: fadeUp 0.9s 0.4s forwards;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold-light);
+    }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      color: var(--grey);
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.6s forwards;
+    }
+
+    .hero-cta {
+      margin-top: 2.8rem;
+      display: inline-block;
+      padding: 0.85rem 2.5rem;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      transition: background 0.3s, color 0.3s;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.8s forwards;
+    }
+    .hero-cta:hover { background: var(--gold); color: var(--black); }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--grey);
+      opacity: 0;
+      animation: fadeUp 1s 1.2s forwards;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: scrollPulse 2s infinite;
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      padding: 8rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .about-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+
+    .about-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 300;
+      line-height: 1.2;
+      color: var(--off-white);
+      margin-bottom: 1.5rem;
+    }
+
+    .about-text {
+      color: var(--grey);
+      font-size: 0.95rem;
+      line-height: 1.85;
+      margin-bottom: 1rem;
+    }
+
+    .about-stats {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(200,164,90,0.2);
+    }
+
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-top: 0.3rem;
+    }
+
+    .about-img-wrap {
+      position: relative;
+    }
+    .about-img-frame {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: var(--card-bg);
+      border: 1px solid rgba(200,164,90,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .about-img-frame::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(200,164,90,0.05) 0%, transparent 60%);
+    }
+    .about-placeholder {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem;
+      color: var(--grey);
+      letter-spacing: 0.1em;
+      text-align: center;
+      padding: 2rem;
+    }
+    .about-placeholder span {
+      display: block;
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+    .about-img-accent {
+      position: absolute;
+      bottom: -1.5rem;
+      right: -1.5rem;
+      width: 60%;
+      height: 60%;
+      border: 1px solid rgba(200,164,90,0.2);
+      pointer-events: none;
+    }
+
+    /* ── GALLERY ── */
+    #gallery {
+      padding: 6rem 4rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 3rem;
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.8rem;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 300;
+      color: var(--off-white);
+    }
+
+    /* Filter tabs */
+    .gallery-filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: none;
+      border: 1px solid rgba(200,164,90,0.3);
+      color: var(--grey);
+      padding: 0.45rem 1.2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--black);
+    }
+
+    /* Masonry grid */
+    .gallery-grid {
+      columns: 3;
+      column-gap: 1rem;
+    }
+
+    .gallery-item {
+      break-inside: avoid;
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      display: block;
+    }
+
+    .gallery-item-inner {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+      position: relative;
+    }
+
+    .gallery-item:hover .gallery-item-inner {
+      transform: scale(1.02);
+    }
+
+    .gallery-thumb {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* Placeholder photo cards */
+    .photo-placeholder {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      min-height: 200px;
+    }
+
+    .photo-placeholder .icon { font-size: 2.5rem; opacity: 0.15; margin-bottom: 0.8rem; }
+    .photo-placeholder .ph-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--grey);
+    }
+
+    .gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.35s;
+      display: flex;
+      align-items: flex-end;
+      padding: 1.5rem;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+
+    .overlay-info { }
+    .overlay-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      color: var(--off-white);
+    }
+    .overlay-cat {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 0.2rem;
+    }
+
+    /* Lightbox */
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    #lightbox.open { opacity: 1; pointer-events: all; }
+    .lightbox-close {
+      position: absolute;
+      top: 1.5rem; right: 2rem;
+      background: none;
+      border: none;
+      color: var(--off-white);
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .lightbox-content {
+      max-width: 80vw;
+      max-height: 80vh;
+      text-align: center;
+    }
+    .lightbox-placeholder {
+      width: 600px;
+      max-width: 80vw;
+      aspect-ratio: 4/3;
+      background: var(--card-bg);
+      border: 1px solid rgba(200,164,90,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .lightbox-placeholder .icon { font-size: 4rem; opacity: 0.2; }
+    .lightbox-title {
+      margin-top: 1rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      color: var(--off-white);
+    }
+    .lightbox-cat {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 0.3rem;
+    }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(200,164,90,0.15);
+      border: 1px solid rgba(200,164,90,0.3);
+      color: var(--gold);
+      width: 44px; height: 44px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .lightbox-nav:hover { background: rgba(200,164,90,0.35); }
+    #lb-prev { left: 1.5rem; }
+    #lb-next { right: 1.5rem; }
+
+    /* ── SERVICES ── */
+    #services {
+      padding: 6rem 4rem;
+      background: #111;
+    }
+
+    .services-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .service-card {
+      padding: 2.5rem 2rem;
+      border: 1px solid rgba(200,164,90,0.1);
+      background: var(--card-bg);
+      transition: border-color 0.3s, transform 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s;
+    }
+    .service-card:hover { border-color: rgba(200,164,90,0.35); transform: translateY(-4px); }
+    .service-card:hover::before { transform: scaleX(1); }
+
+    .service-icon { font-size: 1.8rem; margin-bottom: 1.2rem; }
+    .service-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      color: var(--off-white);
+      margin-bottom: 0.8rem;
+    }
+    .service-desc {
+      font-size: 0.88rem;
+      color: var(--grey);
+      line-height: 1.7;
+    }
+    .service-price {
+      margin-top: 1.5rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      padding: 7rem 4rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .contact-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      font-weight: 300;
+      line-height: 1.15;
+      color: var(--off-white);
+      margin-bottom: 1rem;
+    }
+    .contact-title em { font-style: italic; color: var(--gold-light); }
+
+    .contact-sub {
+      color: var(--grey);
+      font-size: 0.95rem;
+      margin-bottom: 3rem;
+    }
+
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin-bottom: 3.5rem;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.9rem 2rem;
+      border: 1px solid rgba(200,164,90,0.3);
+      color: var(--off-white);
+      text-decoration: none;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      transition: all 0.25s;
+    }
+    .contact-link:hover { background: var(--gold); border-color: var(--gold); color: var(--black); }
+    .contact-link.whatsapp-btn { background: rgba(37,211,102,0.1); border-color: rgba(37,211,102,0.4); }
+    .contact-link.whatsapp-btn:hover { background: #25D366; border-color: #25D366; color: #fff; }
+    .contact-link .link-icon { font-size: 1.1rem; }
+
+    .social-row {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .social-link {
+      width: 42px; height: 42px;
+      border: 1px solid rgba(200,164,90,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--grey);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: all 0.25s;
+    }
+    .social-link:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid rgba(200,164,90,0.1);
+      padding: 2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--grey);
+      letter-spacing: 0.05em;
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+
+    /* ── FLOATING WHATSAPP ── */
+    #wa-float {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 200;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: #25D366;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+      text-decoration: none;
+      animation: waPulse 2.5s infinite;
+      transition: transform 0.2s;
+    }
+    #wa-float:hover { transform: scale(1.1); }
+    #wa-float svg { width: 28px; height: 28px; fill: #fff; }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50%       { opacity: 1;   transform: scaleY(1.2); }
+    }
+    @keyframes waPulse {
+      0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.4); }
+      50%       { box-shadow: 0 4px 32px rgba(37,211,102,0.7); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 2rem; }
+      nav.scrolled { padding: 0.8rem 2rem; }
+      .nav-links { display: none; }
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%; left: 0; right: 0;
+        background: rgba(13,13,13,0.97);
+        padding: 1.5rem 2rem;
+        gap: 1.2rem;
+      }
+      .nav-hamburger { display: flex; }
+
+      #about {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+        padding: 5rem 2rem;
+      }
+      .about-img-wrap { display: none; }
+
+      #gallery { padding: 4rem 1.5rem; }
+      .gallery-grid { columns: 2; }
+
+      .services-grid { grid-template-columns: 1fr; }
+      #services { padding: 5rem 2rem; }
+
+      #contact { padding: 5rem 2rem; }
+      footer { flex-direction: column; gap: 0.8rem; text-align: center; padding: 1.5rem 2rem; }
+    }
+
+    @media (max-width: 500px) {
+      .gallery-grid { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <a href="#hero" class="nav-logo">Lens &amp; Light</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about">About</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Photography Portfolio</p>
+      <h1 class="hero-title">Capturing<br><em>Moments</em><br>in Light</h1>
+      <p class="hero-sub">Weddings · Portraits · Nature · Events · Architecture</p>
+      <a href="#gallery" class="hero-cta">View Gallery</a>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="reveal">
+      <p class="about-label">About the Photographer</p>
+      <h2 class="about-title">Every frame tells a story worth remembering</h2>
+      <p class="about-text">With a passion for authentic moments and a sharp eye for light, I transform fleeting instants into timeless photographs. Based in Rajasthan, I travel across India capturing the raw beauty of life.</p>
+      <p class="about-text">Whether it's the warmth of a wedding celebration, the quiet grace of a portrait, or the grandeur of a landscape — every image is crafted with intention.</p>
+      <div class="about-stats">
+        <div>
+          <div class="stat-num">500+</div>
+          <div class="stat-label">Projects Done</div>
+        </div>
+        <div>
+          <div class="stat-num">8+</div>
+          <div class="stat-label">Years Experience</div>
+        </div>
+        <div>
+          <div class="stat-num">200+</div>
+          <div class="stat-label">Happy Clients</div>
+        </div>
+      </div>
+    </div>
+    <div class="about-img-wrap reveal">
+      <div class="about-img-frame">
+        <div class="about-placeholder">
+          <span>📷</span>
+          Your Photo Here<br>
+          <small style="color:#555; font-size:0.75rem; margin-top:0.4rem; display:block;">Replace with &lt;img src="your-photo.jpg"&gt;</small>
+        </div>
+      </div>
+      <div class="about-img-accent"></div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="section-header reveal">
+      <div>
+        <p class="section-label">Portfolio</p>
+        <h2 class="section-title">Selected Work</h2>
+      </div>
+    </div>
+
+    <div class="gallery-filters reveal">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="wedding">Wedding</button>
+      <button class="filter-btn" data-filter="portrait">Portrait</button>
+      <button class="filter-btn" data-filter="nature">Nature</button>
+      <button class="filter-btn" data-filter="event">Event</button>
+    </div>
+
+    <div class="gallery-grid" id="galleryGrid">
+      <!-- Cards generated by JS -->
+    </div>
+  </section>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox">
+    <button class="lightbox-close" id="lbClose">&#x2715;</button>
+    <button class="lightbox-nav" id="lb-prev">&#8592;</button>
+    <div class="lightbox-content" id="lbContent"></div>
+    <button class="lightbox-nav" id="lb-next">&#8594;</button>
+  </div>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="services-inner">
+      <div class="reveal">
+        <p class="section-label">What I Offer</p>
+        <h2 class="section-title">Photography Services</h2>
+      </div>
+      <div class="services-grid">
+        <div class="service-card reveal">
+          <div class="service-icon">💍</div>
+          <div class="service-name">Wedding Photography</div>
+          <div class="service-desc">Full-day coverage of your special day — from getting ready to the last dance. Candid, editorial, and traditional styles.</div>
+          <div class="service-price">Starting ₹25,000</div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">🙍</div>
+          <div class="service-name">Portrait Sessions</div>
+          <div class="service-desc">Personal, family, and professional portraits. Studio or outdoor — we find the light that makes you shine.</div>
+          <div class="service-price">Starting ₹5,000</div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">🌿</div>
+          <div class="service-name">Nature & Travel</div>
+          <div class="service-desc">Landscapes, wildlife, and travel photography across Rajasthan and India. Fine art prints available.</div>
+          <div class="service-price">Starting ₹8,000</div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">🎉</div>
+          <div class="service-name">Event Coverage</div>
+          <div class="service-desc">Corporate events, birthday parties, cultural functions — complete event documentation with quick delivery.</div>
+          <div class="service-price">Starting ₹10,000</div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">🍽️</div>
+          <div class="service-name">Food Photography</div>
+          <div class="service-desc">Restaurant menus, food brands, and culinary content. Styled food shots that make viewers hungry.</div>
+          <div class="service-price">Starting ₹6,000</div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">🚗</div>
+          <div class="service-name">Vehicle Photography</div>
+          <div class="service-desc">Car dealerships, showrooms, and private listings. Dynamic angles and detail shots that sell vehicles.</div>
+          <div class="service-price">Starting ₹4,000</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="reveal">
+      <p class="section-label">Get in Touch</p>
+      <h2 class="contact-title">Let's create something <em>beautiful</em> together</h2>
+      <p class="contact-sub">Available for bookings across Rajasthan &amp; pan-India. Reach out to discuss your project.</p>
+
+      <div class="contact-links">
+        <a href="https://wa.me/919999999999" target="_blank" class="contact-link whatsapp-btn">
+          <span class="link-icon">💬</span> WhatsApp Us
+        </a>
+        <a href="tel:+919999999999" class="contact-link">
+          <span class="link-icon">📞</span> Call Now
+        </a>
+        <a href="mailto:hello@lensandlight.in" class="contact-link">
+          <span class="link-icon">✉️</span> Send Email
+        </a>
+      </div>
+
+      <div class="social-row">
+        <a href="#" class="social-link" title="Instagram">📸</a>
+        <a href="#" class="social-link" title="Facebook">📘</a>
+        <a href="#" class="social-link" title="YouTube">▶</a>
+        <a href="#" class="social-link" title="Pinterest">📌</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>&copy; 2024 Lens &amp; Light Photography. All rights reserved.</span>
+    <span>Made with ♥ in Rajasthan &nbsp;|&nbsp; <a href="https://wa.me/919999999999">Book Now</a></span>
+  </footer>
+
+  <!-- FLOATING WHATSAPP -->
+  <a href="https://wa.me/919999999999" id="wa-float" target="_blank" title="Chat on WhatsApp">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </a>
+
+  <script>
+    // ── Gallery Data ──
+    const photos = [
+      { id:1, title:'Golden Hour', cat:'wedding',  emoji:'👰', h:280 },
+      { id:2, title:'Desert Dunes', cat:'nature',   emoji:'🏜️', h:340 },
+      { id:3, title:'City Portrait', cat:'portrait', emoji:'🙍', h:260 },
+      { id:4, title:'Reception Night', cat:'wedding', emoji:'🎊', h:320 },
+      { id:5, title:'Mountain Road', cat:'nature',   emoji:'🏔️', h:240 },
+      { id:6, title:'Festival Vibes', cat:'event',   emoji:'🎉', h:300 },
+      { id:7, title:'Studio Session', cat:'portrait', emoji:'💡', h:360 },
+      { id:8, title:'Morning Mist', cat:'nature',   emoji:'🌫️', h:250 },
+      { id:9, title:'Sangeet Night', cat:'wedding',  emoji:'💃', h:290 },
+      { id:10, title:'Sunset Couple', cat:'wedding', emoji:'🌅', h:310 },
+      { id:11, title:'Kids Portrait', cat:'portrait', emoji:'👦', h:270 },
+      { id:12, title:'Corporate Event', cat:'event', emoji:'🏢', h:240 },
+    ];
+
+    // Gradient palettes for placeholder cards
+    const gradients = [
+      'linear-gradient(135deg,#1a1208 0%,#2d1f0a 100%)',
+      'linear-gradient(135deg,#0a1a0d 0%,#0d2610 100%)',
+      'linear-gradient(135deg,#0a0d1a 0%,#0f1230 100%)',
+      'linear-gradient(135deg,#1a0a08 0%,#2e1208 100%)',
+      'linear-gradient(135deg,#120a1a 0%,#1e0d2e 100%)',
+      'linear-gradient(135deg,#0a1a1a 0%,#0d2626 100%)',
+    ];
+
+    function buildGallery(filter) {
+      const grid = document.getElementById('galleryGrid');
+      grid.innerHTML = '';
+      const items = filter === 'all' ? photos : photos.filter(p => p.cat === filter);
+      items.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'gallery-item';
+        div.dataset.id = p.id;
+        div.innerHTML = `
+          <div class="gallery-item-inner" style="min-height:${p.h}px; background:${gradients[i % gradients.length]}">
+            <div class="photo-placeholder">
+              <div class="icon">${p.emoji}</div>
+              <div class="ph-label">${p.title}</div>
+              <div style="font-size:0.65rem;color:#444;margin-top:0.4rem;">Add your image here</div>
+            </div>
+            <div class="gallery-overlay">
+              <div class="overlay-info">
+                <div class="overlay-title">${p.title}</div>
+                <div class="overlay-cat">${p.cat}</div>
+              </div>
+            </div>
+          </div>`;
+        div.addEventListener('click', () => openLightbox(p.id));
+        grid.appendChild(div);
+      });
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        buildGallery(btn.dataset.filter);
+      });
+    });
+
+    buildGallery('all');
+
+    // ── Lightbox ──
+    let currentId = 1;
+    function openLightbox(id) {
+      currentId = id;
+      const p = photos.find(x => x.id === id);
+      const lb = document.getElementById('lightbox');
+      document.getElementById('lbContent').innerHTML = `
+        <div class="lightbox-placeholder">
+          <div class="icon">${p.emoji}</div>
+          <div style="color:var(--grey);font-size:0.75rem;letter-spacing:0.1em;">YOUR IMAGE APPEARS HERE</div>
+        </div>
+        <div class="lightbox-title">${p.title}</div>
+        <div class="lightbox-cat">${p.cat}</div>`;
+      lb.classList.add('open');
+    }
+
+    document.getElementById('lbClose').addEventListener('click', () => {
+      document.getElementById('lightbox').classList.remove('open');
+    });
+    document.getElementById('lightbox').addEventListener('click', e => {
+      if (e.target === document.getElementById('lightbox'))
+        document.getElementById('lightbox').classList.remove('open');
+    });
+    document.getElementById('lb-prev').addEventListener('click', () => {
+      const idx = photos.findIndex(p => p.id === currentId);
+      openLightbox(photos[(idx - 1 + photos.length) % photos.length].id);
+    });
+    document.getElementById('lb-next').addEventListener('click', () => {
+      const idx = photos.findIndex(p => p.id === currentId);
+      openLightbox(photos[(idx + 1) % photos.length].id);
+    });
+
+    // Keyboard nav
+    document.addEventListener('keydown', e => {
+      if (!document.getElementById('lightbox').classList.contains('open')) return;
+      if (e.key === 'Escape') document.getElementById('lightbox').classList.remove('open');
+      if (e.key === 'ArrowLeft') document.getElementById('lb-prev').click();
+      if (e.key === 'ArrowRight') document.getElementById('lb-next').click();
+    });
+
+    // ── Scroll Reveal ──
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── Navbar scroll ──
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // ── Hamburger ──
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
